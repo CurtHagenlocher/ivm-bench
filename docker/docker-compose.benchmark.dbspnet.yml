@@ -9,14 +9,18 @@ services:
       context: ../src/containers/dbspnet
       args:
         DBSPNET_REPO: "${DBSPNET_REPO:-https://github.com/clast-project/dbsp-net.git}"
-        DBSPNET_COMMIT: "${DBSPNET_COMMIT:-355ef65}"
+        DBSPNET_COMMIT: "${DBSPNET_COMMIT:-76b9ed2}"
     cpus: ${DBSPNET_CPUS:-32}
     mem_limit: ${DBSPNET_MEM:-120g}
     environment:
-      # Batch profiling (localizes batch-1 wall-clock). Report goes to stderr
-      # (docker logs) and, teardown-proof, to the mounted results volume.
-      DBSPNET_PROFILE: "${DBSPNET_PROFILE:-0}"
-      DBSPNET_PROFILE_FILE: "${DBSPNET_PROFILE_FILE:-/data/processed/dbspnet/batch-profile.txt}"
+      # Batch profiling (localizes batch-1 wall-clock). Hardcoded literals (NOT
+      # ${..} interpolation) so they reach the container regardless of whether
+      # compose is run from the host or from the orchestrator (whose env is a
+      # fixed allowlist that omits DBSPNET_*). Report goes to stderr (docker
+      # logs) and, teardown-proof, to the mounted results volume. Revert to "0"
+      # to turn profiling off.
+      DBSPNET_PROFILE: "1"
+      DBSPNET_PROFILE_FILE: "/data/processed/dbspnet/batch-profile.txt"
     volumes:
       - ../mount/raw/${SCALE_FACTOR:-3}/delta:/data/raw/delta
       - ../mount/results/${SCALE_FACTOR:-3}/dbspnet:/data/processed/dbspnet
