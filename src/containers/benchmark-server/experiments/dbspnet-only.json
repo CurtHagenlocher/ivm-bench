@@ -1,0 +1,29 @@
+{
+  "_comment": [
+    "Run ONLY the DbspNet engine (no Feldera) — for profiling/localizing DbspNet",
+    "in isolation. Same SF=3 shape as dbspnet.json but with a single-engine list,",
+    "so no Feldera build/run happens. The per-experiment engines list is authoritative",
+    "(orchestrator._apply_experiment sets config.engines = inputs.engines), so the",
+    "ENGINES env var alone can't drop an engine that the JSON names — hence this file.",
+    "",
+    "Usage (host):",
+    "  BENCHMARK_EXPERIMENTS_FILE=src/containers/benchmark-server/experiments/dbspnet-only.json \\",
+    "    bash src/.scripts/benchmark.sh"
+  ],
+  "baseline": {
+    "engines": ["dbspnet"],
+    "parallel": false,
+    "feature_flags": {
+      "preserve_raw": false
+    }
+  },
+  "experiments": [
+    {
+      "label": "dbspnet-only",
+      "scale_factor": 3,
+      "batch_1_pct": "100",
+      "batch_2_pct": "1",
+      "batch_3_pct": "1"
+    }
+  ]
+}
