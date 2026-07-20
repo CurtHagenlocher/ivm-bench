@@ -94,7 +94,12 @@ def disk_cleanup_after_experiment(
             emit=emit,
         )
 
-    targets: List[str] = [os.path.join(mount, "raw", sf)]
+    # PRESERVE_RAW=1 keeps mount/raw/<sf>/ after the experiment so the generated
+    # Delta input tables can be copied out for a Docker-free local repro. (Phase 0
+    # still force-wipes raw at the start of a sweep; this only skips the
+    # end-of-experiment wipe.) Off by default.
+    preserve_raw = os.environ.get("PRESERVE_RAW", "0") == "1"
+    targets: List[str] = [] if preserve_raw else [os.path.join(mount, "raw", sf)]
     keep_events = os.environ.get("SPARK_METRICS_KEEP_EVENTS", "0") == "1"
     # PRESERVE_RESULTS=1 keeps each engine's Delta output tables under
     # mount/results/<sf>/<engine>/ after the run so they can be diffed for

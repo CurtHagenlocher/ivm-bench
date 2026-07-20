@@ -5,7 +5,7 @@
 # by overriding DBSPNET_COMMIT (and DBSPNET_REPO for a fork).
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG DBSPNET_REPO=https://github.com/clast-project/dbsp-net.git
-ARG DBSPNET_COMMIT=62d06c0
+ARG DBSPNET_COMMIT=ebd2dba
 
 # git + certs for the clone.
 RUN apt-get update \
@@ -28,6 +28,11 @@ RUN apt-get update \
  && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 COPY --from=build /app .
+# Re-declare the build arg in this stage (ARGs don't cross FROM boundaries) and
+# surface it as an env var so the running server can self-stamp its commit in the
+# batch profile — an unambiguous "which build am I?" check.
+ARG DBSPNET_COMMIT
+ENV DBSPNET_COMMIT=${DBSPNET_COMMIT}
 ENV ASPNETCORE_URLS=http://+:8080
 EXPOSE 8080
 ENTRYPOINT ["dotnet", "DbspNet.Server.dll"]
